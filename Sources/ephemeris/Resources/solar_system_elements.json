@@ -1,0 +1,276 @@
+{
+  "metadata": {
+    "source": "JPL SSD - Approximate Positions of the Planets",
+    "url": "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
+    "validRange": "1800 AD - 2050 AD",
+    "referenceFrame": "Ecliptic J2000",
+    "epoch": "J2000.0 (JD 2451545.0)",
+    "units": {
+      "semiMajorAxis": "AU",
+      "eccentricity": "dimensionless",
+      "angles": "degrees",
+      "rates": "per Julian century"
+    }
+  },
+  "bodies": {
+    "mercury": {
+      "name": "Mercury",
+      "naifId": 199,
+      "elements": {
+        "semiMajorAxis": 0.38709927,
+        "eccentricity": 0.20563593,
+        "inclination": 7.00497902,
+        "meanLongitude": 252.25032350,
+        "longitudeOfPerihelion": 77.45779628,
+        "longitudeOfAscendingNode": 48.33076593
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.00000037,
+        "eccentricityRate": 0.00001906,
+        "inclinationRate": -0.00594749,
+        "meanLongitudeRate": 149472.67411175,
+        "longitudeOfPerihelionRate": 0.16047689,
+        "longitudeOfAscendingNodeRate": -0.12534081
+      },
+      "physicalParameters": {
+        "mass": 3.30103e23,
+        "gm": 2.203187e13,
+        "meanRadius": 2439.4
+      }
+    },
+    "venus": {
+      "name": "Venus",
+      "naifId": 299,
+      "elements": {
+        "semiMajorAxis": 0.72333566,
+        "eccentricity": 0.00677672,
+        "inclination": 3.39467605,
+        "meanLongitude": 181.97909950,
+        "longitudeOfPerihelion": 131.60246718,
+        "longitudeOfAscendingNode": 76.67984255
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.00000390,
+        "eccentricityRate": -0.00004107,
+        "inclinationRate": -0.00078890,
+        "meanLongitudeRate": 58517.81538729,
+        "longitudeOfPerihelionRate": 0.00268329,
+        "longitudeOfAscendingNodeRate": -0.27769418
+      },
+      "physicalParameters": {
+        "mass": 4.86731e24,
+        "gm": 3.248586e14,
+        "meanRadius": 6051.8
+      }
+    },
+    "earth": {
+      "name": "Earth",
+      "naifId": 399,
+      "elements": {
+        "semiMajorAxis": 1.00000261,
+        "eccentricity": 0.01671123,
+        "inclination": -0.00001531,
+        "meanLongitude": 100.46457166,
+        "longitudeOfPerihelion": 102.93768193,
+        "longitudeOfAscendingNode": 0.0
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.00000562,
+        "eccentricityRate": -0.00004392,
+        "inclinationRate": -0.01294668,
+        "meanLongitudeRate": 35999.37244981,
+        "longitudeOfPerihelionRate": 0.32327364,
+        "longitudeOfAscendingNodeRate": 0.0
+      },
+      "physicalParameters": {
+        "mass": 5.97217e24,
+        "gm": 3.986004418e14,
+        "meanRadius": 6371.0
+      }
+    },
+    "mars": {
+      "name": "Mars",
+      "naifId": 499,
+      "elements": {
+        "semiMajorAxis": 1.52371034,
+        "eccentricity": 0.09339410,
+        "inclination": 1.84969142,
+        "meanLongitude": -4.55343205,
+        "longitudeOfPerihelion": -23.94362959,
+        "longitudeOfAscendingNode": 49.55953891
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.00001847,
+        "eccentricityRate": 0.00007882,
+        "inclinationRate": -0.00813131,
+        "meanLongitudeRate": 19140.30268499,
+        "longitudeOfPerihelionRate": 0.44441088,
+        "longitudeOfAscendingNodeRate": -0.29257343
+      },
+      "physicalParameters": {
+        "mass": 6.41691e23,
+        "gm": 4.282837e13,
+        "meanRadius": 3389.5
+      }
+    },
+    "jupiter": {
+      "name": "Jupiter",
+      "naifId": 599,
+      "elements": {
+        "semiMajorAxis": 5.20288700,
+        "eccentricity": 0.04838624,
+        "inclination": 1.30439695,
+        "meanLongitude": 34.39644051,
+        "longitudeOfPerihelion": 14.72847983,
+        "longitudeOfAscendingNode": 100.47390909
+      },
+      "rates": {
+        "semiMajorAxisRate": -0.00011607,
+        "eccentricityRate": -0.00013253,
+        "inclinationRate": -0.00183714,
+        "meanLongitudeRate": 3034.74612775,
+        "longitudeOfPerihelionRate": 0.21252668,
+        "longitudeOfAscendingNodeRate": 0.20469106
+      },
+      "physicalParameters": {
+        "mass": 1.898125e27,
+        "gm": 1.26686531e17,
+        "meanRadius": 69911.0
+      }
+    },
+    "saturn": {
+      "name": "Saturn",
+      "naifId": 699,
+      "elements": {
+        "semiMajorAxis": 9.53667594,
+        "eccentricity": 0.05386179,
+        "inclination": 2.48599187,
+        "meanLongitude": 49.95424423,
+        "longitudeOfPerihelion": 92.59887831,
+        "longitudeOfAscendingNode": 113.66242448
+      },
+      "rates": {
+        "semiMajorAxisRate": -0.00125060,
+        "eccentricityRate": -0.00050991,
+        "inclinationRate": 0.00193609,
+        "meanLongitudeRate": 1222.49362201,
+        "longitudeOfPerihelionRate": -0.41897216,
+        "longitudeOfAscendingNodeRate": -0.28867794
+      },
+      "physicalParameters": {
+        "mass": 5.68317e26,
+        "gm": 3.793120623e16,
+        "meanRadius": 58232.0
+      }
+    },
+    "uranus": {
+      "name": "Uranus",
+      "naifId": 799,
+      "elements": {
+        "semiMajorAxis": 19.18916464,
+        "eccentricity": 0.04725744,
+        "inclination": 0.77263783,
+        "meanLongitude": 313.23810451,
+        "longitudeOfPerihelion": 170.95427630,
+        "longitudeOfAscendingNode": 74.01692503
+      },
+      "rates": {
+        "semiMajorAxisRate": -0.00196176,
+        "eccentricityRate": -0.00004397,
+        "inclinationRate": -0.00242939,
+        "meanLongitudeRate": 428.48202785,
+        "longitudeOfPerihelionRate": 0.40805281,
+        "longitudeOfAscendingNodeRate": 0.04240589
+      },
+      "physicalParameters": {
+        "mass": 8.68099e25,
+        "gm": 5.793951322e15,
+        "meanRadius": 25362.0
+      }
+    },
+    "neptune": {
+      "name": "Neptune",
+      "naifId": 899,
+      "elements": {
+        "semiMajorAxis": 30.06992276,
+        "eccentricity": 0.00859048,
+        "inclination": 1.77004347,
+        "meanLongitude": -55.12002969,
+        "longitudeOfPerihelion": 44.96476227,
+        "longitudeOfAscendingNode": 131.78422574
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.00026291,
+        "eccentricityRate": 0.00005105,
+        "inclinationRate": 0.00035372,
+        "meanLongitudeRate": 218.45945325,
+        "longitudeOfPerihelionRate": -0.32241464,
+        "longitudeOfAscendingNodeRate": -0.00508664
+      },
+      "physicalParameters": {
+        "mass": 1.024092e26,
+        "gm": 6.83652710058e15,
+        "meanRadius": 24622.0
+      }
+    },
+    "ceres": {
+      "name": "Ceres",
+      "naifId": 2000001,
+      "elements": {
+        "semiMajorAxis": 2.7691651545,
+        "eccentricity": 0.0760090291,
+        "inclination": 10.5934,
+        "meanLongitude": 95.9891,
+        "longitudeOfPerihelion": 152.3721,
+        "longitudeOfAscendingNode": 80.3055
+      },
+      "rates": {
+        "semiMajorAxisRate": 0.0,
+        "eccentricityRate": 0.0,
+        "inclinationRate": 0.0,
+        "meanLongitudeRate": 12364.0,
+        "longitudeOfPerihelionRate": 0.0,
+        "longitudeOfAscendingNodeRate": 0.0
+      },
+      "physicalParameters": {
+        "mass": 9.38416e20,
+        "gm": 6.263e10,
+        "meanRadius": 469.7
+      }
+    },
+    "pluto": {
+      "name": "Pluto",
+      "naifId": 999,
+      "elements": {
+        "semiMajorAxis": 39.48211675,
+        "eccentricity": 0.24882730,
+        "inclination": 17.14001206,
+        "meanLongitude": 238.92903833,
+        "longitudeOfPerihelion": 224.06891629,
+        "longitudeOfAscendingNode": 110.30393684
+      },
+      "rates": {
+        "semiMajorAxisRate": -0.00031596,
+        "eccentricityRate": 0.00005170,
+        "inclinationRate": 0.00004818,
+        "meanLongitudeRate": 145.20780515,
+        "longitudeOfPerihelionRate": -0.04062942,
+        "longitudeOfAscendingNodeRate": -0.01183482
+      },
+      "physicalParameters": {
+        "mass": 1.30246e22,
+        "gm": 8.696e11,
+        "meanRadius": 1188.3
+      }
+    }
+  },
+  "sun": {
+    "name": "Sun",
+    "naifId": 10,
+    "physicalParameters": {
+      "mass": 1.98850e30,
+      "gm": 1.3271244004194e20,
+      "meanRadius": 695700.0
+    }
+  }
+}

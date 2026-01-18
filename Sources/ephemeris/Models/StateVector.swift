@@ -194,21 +194,4 @@ extension StateVector: CustomStringConvertible {
     }
 }
 
-// MARK: - SIMD3 Codable Extension
 
-extension SIMD3: @retroactive Codable where Scalar: Codable {
-    public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        let x = try container.decode(Scalar.self)
-        let y = try container.decode(Scalar.self)
-        let z = try container.decode(Scalar.self)
-        self.init(x, y, z)
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(self.x)
-        try container.encode(self.y)
-        try container.encode(self.z)
-    }
-}
