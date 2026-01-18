@@ -28,12 +28,20 @@ jobs:
 
       - name: Build Documentation
         run: |
-          swift package generate-documentation \
-            --target ephemeris \
-            --disable-indexing \
-            --transform-for-static-hosting \
-            --hosting-base-path ephemeris \
-            --output-path ./docs
+          xcodebuild docbuild \
+            -scheme ephemeris \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath ./docc-build \
+            OTHER_DOCC_FLAGS="--transform-for-static-hosting --hosting-base-path ephemeris"
+          
+          # Find and copy the doccarchive
+          ARCHIVE=$(find ./docc-build -name "*.doccarchive" -type d | head -1)
+          if [ -z "$ARCHIVE" ]; then
+            echo "No doccarchive found"
+            exit 1
+          fi
+          echo "Found archive: $ARCHIVE"
+          cp -R "$ARCHIVE" ./docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
