@@ -1,14 +1,15 @@
 import Foundation
 import simd
 
-/// The main interface for computing planetary positions.
+/// The main interface for computing planetary and moon positions.
 ///
 /// `Ephemeris` provides high-level access to solar system body positions at any point in time.
 /// It combines bundled orbital elements with Keplerian propagation to compute state vectors.
 ///
 /// ## Features
 ///
-/// - Compute positions of planets, dwarf planets at any epoch
+/// - Compute positions of planets, dwarf planets, and moons at any epoch
+/// - Hierarchical moon positions (moons orbit parents, computed relative to parent then transformed to heliocentric)
 /// - Uses JPL orbital elements (valid 1800-2050 AD)
 /// - Supports propagation up to ~200 years from J2000
 /// - Thread-safe (actor-based design)
@@ -19,13 +20,15 @@ import simd
 /// // Create an ephemeris instance
 /// let ephemeris = try await Ephemeris()
 ///
-/// // Get Earth's position at J2000
+/// // Get Earth's position at J2000 (heliocentric)
 /// let earthState = try await ephemeris.state(of: .earth, at: .j2000)
 /// print("Earth distance: \(earthState.distanceAU) AU")
 ///
-/// // Get Mars position at a specific date
-/// let epoch = Epoch(year: 2025, month: 6, day: 15)
-/// let marsState = try await ephemeris.state(of: .mars, at: epoch)
+/// // Get Moon's position (heliocentric - computed via Earth)
+/// let moonState = try await ephemeris.state(of: .moon, at: .j2000)
+///
+/// // Get Moon's position relative to Earth
+/// let moonRelative = try await ephemeris.state(of: .moon, at: .j2000, relativeTo: .earth)
 /// ```
 ///
 /// ## Accuracy
@@ -33,9 +36,9 @@ import simd
 /// Using JPL approximate positions:
 /// - Inner planets: ~20 arcseconds in longitude
 /// - Outer planets: ~600 arcseconds in longitude
-/// - Sufficient for visualization, game mechanics, mission planning sketches
+/// - Moons: Variable, sufficient for game purposes
 ///
-/// For higher accuracy, consider using JPL Horizons API (coming soon).
+/// For higher accuracy, consider using JPL Horizons API.
 public actor Ephemeris {
     
     // MARK: - Properties
@@ -74,8 +77,9 @@ public actor Ephemeris {
     
     /// Computes the heliocentric state vector of a body at a given epoch.
     ///
-    /// The returned state vector gives the position and velocity of the body
-    /// relative to the Sun (heliocentric coordinates).
+    /// For planets and asteroids, this computes the position directly from orbital elements.
+    /// For moons, this first computes the parent body's position, then adds the moon's
+    /// position relative to its parent.
     ///
     /// - Parameters:
     ///   - body: The celestial body.
@@ -83,7 +87,12 @@ public actor Ephemeris {
     /// - Returns: Heliocentric state vector in the configured output frame.
     /// - Throws: If the body is not available or epoch is invalid.
     public func state(of body: CelestialBody, at epoch: Epoch) throws -> StateVector {
-        // Get elements at the target epoch
+        // Check if this is a moon
+        if body.isMoon {
+            return try moonHeliocentricState(of: body, at: epoch)
+        }
+        
+        // Planet or asteroid - compute directly
         guard let elements = bundledData.elements(for: body, at: epoch) else {
             throw EphemerisError.bodyNotFound(body)
         }
@@ -101,6 +110,35 @@ public actor Ephemeris {
         }
         
         return state
+    }
+    
+    /// Computes the state vector of a body relative to another body.
+    ///
+    /// For moons, passing their parent as the reference body returns the moon's
+    /// orbital position around the parent.
+    ///
+    /// - Parameters:
+    ///   - body: The celestial body.
+    ///   - epoch: The time at which to compute the position.
+    ///   - reference: The reference body (position is computed relative to this).
+    /// - Returns: State vector relative to the reference body.
+    /// - Throws: If either body is not available.
+    public func state(of body: CelestialBody, at epoch: Epoch, relativeTo reference: CelestialBody) throws -> StateVector {
+        // Special case: moon relative to its parent
+        if body.isMoon, body.parent == reference {
+            return try moonRelativeState(of: body, at: epoch)
+        }
+        
+        // General case: compute both heliocentric positions and subtract
+        let bodyState = try state(of: body, at: epoch)
+        let refState = try state(of: reference, at: epoch)
+        
+        return StateVector(
+            position: bodyState.position - refState.position,
+            velocity: bodyState.velocity - refState.velocity,
+            epoch: epoch,
+            frame: outputFrame
+        )
     }
     
     /// Computes the heliocentric position of a body at a given epoch.
@@ -123,6 +161,59 @@ public actor Ephemeris {
     /// - Returns: Distance in astronomical units.
     public func distance(of body: CelestialBody, at epoch: Epoch) throws -> Double {
         try state(of: body, at: epoch).distanceAU
+    }
+    
+    // MARK: - Moon-Specific Queries
+    
+    /// Computes the heliocentric state of a moon.
+    ///
+    /// This computes the parent's heliocentric position, then adds the moon's
+    /// position relative to the parent.
+    private func moonHeliocentricState(of moon: CelestialBody, at epoch: Epoch) throws -> StateVector {
+        guard let parent = moon.parent else {
+            throw EphemerisError.parentNotFound(moon)
+        }
+        
+        // Get parent's heliocentric state
+        let parentState = try state(of: parent, at: epoch)
+        
+        // Get moon's state relative to parent
+        let moonRelative = try moonRelativeState(of: moon, at: epoch)
+        
+        // Combine: moon_heliocentric = parent_heliocentric + moon_relative
+        var heliocentricState = StateVector(
+            position: parentState.position + moonRelative.position,
+            velocity: parentState.velocity + moonRelative.velocity,
+            epoch: epoch,
+            frame: .eclipticJ2000
+        )
+        
+        // Transform to output frame if needed
+        if outputFrame != .eclipticJ2000 {
+            heliocentricState = CoordinateTransform.transform(heliocentricState, to: outputFrame)
+        }
+        
+        return heliocentricState
+    }
+    
+    /// Computes the state of a moon relative to its parent body.
+    private func moonRelativeState(of moon: CelestialBody, at epoch: Epoch) throws -> StateVector {
+        guard let moonData = bundledData.moonData(for: moon) else {
+            throw EphemerisError.moonNotFound(moon)
+        }
+        
+        guard let parentGM = bundledData.gm(for: moonData.parent) else {
+            throw EphemerisError.parentNotFound(moon)
+        }
+        
+        return KeplerSolver.stateVector(
+            from: moonData.elements,
+            gmParent: parentGM,
+            epoch: epoch,
+            orbitalPeriod: moonData.orbitalPeriod,
+            isRetrograde: moonData.isRetrograde,
+            frame: .eclipticJ2000
+        )
     }
     
     // MARK: - Multi-Body Queries
@@ -218,9 +309,27 @@ public actor Ephemeris {
     
     // MARK: - Data Info
     
-    /// List of all bodies available in this ephemeris.
+    /// List of all planetary bodies available in this ephemeris.
     public var availableBodies: [CelestialBody] {
         bundledData.availableBodies
+    }
+    
+    /// List of all moons available in this ephemeris.
+    public var availableMoons: [CelestialBody] {
+        bundledData.availableMoons
+    }
+    
+    /// All available bodies (planets + moons).
+    public var allBodies: [CelestialBody] {
+        bundledData.availableBodies + bundledData.availableMoons
+    }
+    
+    /// Gets all moons of a specific parent body.
+    ///
+    /// - Parameter parent: The parent body.
+    /// - Returns: Array of moons orbiting the parent.
+    public func moons(of parent: CelestialBody) -> [CelestialBody] {
+        bundledData.moons(of: parent)
     }
     
     /// Metadata about the ephemeris data source.

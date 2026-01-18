@@ -10,6 +10,12 @@
       "eccentricity": "dimensionless",
       "angles": "degrees",
       "rates": "per Julian century"
+    },
+    "moonUnits": {
+      "semiMajorAxis": "km",
+      "eccentricity": "dimensionless",
+      "angles": "degrees",
+      "orbitalPeriod": "days"
     }
   },
   "bodies": {
@@ -261,6 +267,199 @@
         "mass": 1.30246e22,
         "gm": 8.696e11,
         "meanRadius": 1188.3
+      }
+    }
+  },
+  "moons": {
+    "moon": {
+      "name": "Moon",
+      "naifId": 301,
+      "parent": "earth",
+      "elements": {
+        "semiMajorAxis": 384400.0,
+        "eccentricity": 0.0549,
+        "inclination": 5.145,
+        "meanLongitude": 218.32,
+        "longitudeOfPeriapsis": 83.23,
+        "longitudeOfAscendingNode": 125.08
+      },
+      "orbitalPeriod": 27.321661,
+      "physicalParameters": {
+        "mass": 7.342e22,
+        "gm": 4.9028e12,
+        "meanRadius": 1737.4
+      }
+    },
+    "phobos": {
+      "name": "Phobos",
+      "naifId": 401,
+      "parent": "mars",
+      "elements": {
+        "semiMajorAxis": 9376.0,
+        "eccentricity": 0.0151,
+        "inclination": 1.093,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 150.057,
+        "longitudeOfAscendingNode": 164.931
+      },
+      "orbitalPeriod": 0.31891,
+      "physicalParameters": {
+        "mass": 1.0659e16,
+        "gm": 7.11e5,
+        "meanRadius": 11.2667
+      }
+    },
+    "deimos": {
+      "name": "Deimos",
+      "naifId": 402,
+      "parent": "mars",
+      "elements": {
+        "semiMajorAxis": 23463.2,
+        "eccentricity": 0.00033,
+        "inclination": 0.93,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 290.496,
+        "longitudeOfAscendingNode": 339.600
+      },
+      "orbitalPeriod": 1.26244,
+      "physicalParameters": {
+        "mass": 1.4762e15,
+        "gm": 9.85e4,
+        "meanRadius": 6.2
+      }
+    },
+    "io": {
+      "name": "Io",
+      "naifId": 501,
+      "parent": "jupiter",
+      "elements": {
+        "semiMajorAxis": 421800.0,
+        "eccentricity": 0.0041,
+        "inclination": 0.036,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 84.129,
+        "longitudeOfAscendingNode": 43.977
+      },
+      "orbitalPeriod": 1.769137786,
+      "physicalParameters": {
+        "mass": 8.9319e22,
+        "gm": 5.959916e12,
+        "meanRadius": 1821.6
+      }
+    },
+    "europa": {
+      "name": "Europa",
+      "naifId": 502,
+      "parent": "jupiter",
+      "elements": {
+        "semiMajorAxis": 671100.0,
+        "eccentricity": 0.0094,
+        "inclination": 0.466,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 88.970,
+        "longitudeOfAscendingNode": 219.106
+      },
+      "orbitalPeriod": 3.551181,
+      "physicalParameters": {
+        "mass": 4.7998e22,
+        "gm": 3.202739e12,
+        "meanRadius": 1560.8
+      }
+    },
+    "ganymede": {
+      "name": "Ganymede",
+      "naifId": 503,
+      "parent": "jupiter",
+      "elements": {
+        "semiMajorAxis": 1070400.0,
+        "eccentricity": 0.0013,
+        "inclination": 0.177,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 192.417,
+        "longitudeOfAscendingNode": 63.552
+      },
+      "orbitalPeriod": 7.15455296,
+      "physicalParameters": {
+        "mass": 1.4819e23,
+        "gm": 9.887834e12,
+        "meanRadius": 2634.1
+      }
+    },
+    "callisto": {
+      "name": "Callisto",
+      "naifId": 504,
+      "parent": "jupiter",
+      "elements": {
+        "semiMajorAxis": 1882700.0,
+        "eccentricity": 0.0074,
+        "inclination": 0.192,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 52.643,
+        "longitudeOfAscendingNode": 298.848
+      },
+      "orbitalPeriod": 16.6890184,
+      "physicalParameters": {
+        "mass": 1.0759e23,
+        "gm": 7.179289e12,
+        "meanRadius": 2410.3
+      }
+    },
+    "titan": {
+      "name": "Titan",
+      "naifId": 606,
+      "parent": "saturn",
+      "elements": {
+        "semiMajorAxis": 1221870.0,
+        "eccentricity": 0.0288,
+        "inclination": 0.34854,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 185.671,
+        "longitudeOfAscendingNode": 28.060
+      },
+      "orbitalPeriod": 15.945,
+      "physicalParameters": {
+        "mass": 1.3452e23,
+        "gm": 8.97814e12,
+        "meanRadius": 2574.73
+      }
+    },
+    "enceladus": {
+      "name": "Enceladus",
+      "naifId": 602,
+      "parent": "saturn",
+      "elements": {
+        "semiMajorAxis": 238020.0,
+        "eccentricity": 0.0047,
+        "inclination": 0.009,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 342.507,
+        "longitudeOfAscendingNode": 93.204
+      },
+      "orbitalPeriod": 1.370218,
+      "physicalParameters": {
+        "mass": 1.08022e20,
+        "gm": 7.211e9,
+        "meanRadius": 252.1
+      }
+    },
+    "phoebe": {
+      "name": "Phoebe",
+      "naifId": 609,
+      "parent": "saturn",
+      "elements": {
+        "semiMajorAxis": 12955759.0,
+        "eccentricity": 0.1562,
+        "inclination": 175.3,
+        "meanLongitude": 0.0,
+        "longitudeOfPeriapsis": 277.8,
+        "longitudeOfAscendingNode": 241.6
+      },
+      "orbitalPeriod": 550.31,
+      "retrograde": true,
+      "physicalParameters": {
+        "mass": 8.292e18,
+        "gm": 5.53e8,
+        "meanRadius": 106.5
       }
     }
   },

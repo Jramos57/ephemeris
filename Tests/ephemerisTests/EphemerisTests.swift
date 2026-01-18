@@ -220,18 +220,144 @@ struct EphemerisTests {
     
     // MARK: - Error Handling
     
-    @Test("Invalid body throws error")
-    func invalidBodyError() async throws {
+    @Test("Sun throws error (no orbital elements)")
+    func sunThrowsError() async throws {
         let ephemeris = try Ephemeris()
         
-        // Moon should not be available as heliocentric body
-        // (it orbits Earth, not the Sun directly)
+        // Sun has no orbital elements - it's the central body
         do {
-            _ = try await ephemeris.state(of: .moon, at: .j2000)
-            Issue.record("Expected error for moon")
+            _ = try await ephemeris.state(of: .sun, at: .j2000)
+            Issue.record("Expected error for sun")
         } catch EphemerisError.bodyNotFound {
-            // Expected
+            // Expected - Sun is not a body that orbits anything
         }
+    }
+    
+    // MARK: - Moon Tests
+    
+    @Test("Moon heliocentric position is near Earth")
+    func moonHeliocentricPosition() async throws {
+        let ephemeris = try Ephemeris()
+        let moonState = try await ephemeris.state(of: .moon, at: .j2000)
+        let earthState = try await ephemeris.state(of: .earth, at: .j2000)
+        
+        // Moon should be roughly 1 AU from Sun (same as Earth)
+        #expect(moonState.distanceAU > 0.97)
+        #expect(moonState.distanceAU < 1.03)
+        
+        // Moon should be within ~400,000 km of Earth
+        let separation = simd_length(moonState.position - earthState.position)
+        let separationKm = separation / 1000.0
+        #expect(separationKm > 350_000)
+        #expect(separationKm < 410_000)
+    }
+    
+    @Test("Moon relative to Earth has correct distance")
+    func moonRelativeToEarth() async throws {
+        let ephemeris = try Ephemeris()
+        let moonState = try await ephemeris.state(of: .moon, at: .j2000, relativeTo: .earth)
+        
+        // Moon's semi-major axis is ~384,400 km
+        let distanceKm = simd_length(moonState.position) / 1000.0
+        #expect(distanceKm > 350_000)
+        #expect(distanceKm < 410_000)
+        
+        // Orbital velocity ~1 km/s
+        let speedKmPerSec = simd_length(moonState.velocity) / 1000.0
+        #expect(speedKmPerSec > 0.9)
+        #expect(speedKmPerSec < 1.1)
+    }
+    
+    @Test("All moons return valid states")
+    func allMoonsHaveStates() async throws {
+        let ephemeris = try Ephemeris()
+        let moons = await ephemeris.availableMoons
+        
+        #expect(moons.count >= 10)  // We have 10 moons defined
+        
+        for moon in moons {
+            let state = try await ephemeris.state(of: moon, at: .j2000)
+            // All moons should be at reasonable solar system distances
+            #expect(state.distanceAU > 0.5, "\(moon.name) too close to Sun")
+            #expect(state.distanceAU < 35, "\(moon.name) too far from Sun")
+        }
+    }
+    
+    @Test("Mars moons orbit at correct distances")
+    func marsMoonsDistances() async throws {
+        let ephemeris = try Ephemeris()
+        
+        let phobosState = try await ephemeris.state(of: .phobos, at: .j2000, relativeTo: .mars)
+        let deimosState = try await ephemeris.state(of: .deimos, at: .j2000, relativeTo: .mars)
+        
+        // Phobos: ~9,376 km from Mars center
+        let phobosDistKm = simd_length(phobosState.position) / 1000.0
+        #expect(phobosDistKm > 9_000)
+        #expect(phobosDistKm < 10_000)
+        
+        // Deimos: ~23,460 km from Mars center
+        let deimosDistKm = simd_length(deimosState.position) / 1000.0
+        #expect(deimosDistKm > 22_000)
+        #expect(deimosDistKm < 25_000)
+    }
+    
+    @Test("Jupiter moons have correct relative ordering")
+    func jupiterMoonsOrdering() async throws {
+        let ephemeris = try Ephemeris()
+        
+        let ioState = try await ephemeris.state(of: .io, at: .j2000, relativeTo: .jupiter)
+        let europaState = try await ephemeris.state(of: .europa, at: .j2000, relativeTo: .jupiter)
+        let ganymedeState = try await ephemeris.state(of: .ganymede, at: .j2000, relativeTo: .jupiter)
+        let callistoState = try await ephemeris.state(of: .callisto, at: .j2000, relativeTo: .jupiter)
+        
+        let ioDist = simd_length(ioState.position)
+        let europaDist = simd_length(europaState.position)
+        let ganymedeDist = simd_length(ganymedeState.position)
+        let callistoDist = simd_length(callistoState.position)
+        
+        // Galilean moons should be in order: Io < Europa < Ganymede < Callisto
+        #expect(ioDist < europaDist, "Io should be closer than Europa")
+        #expect(europaDist < ganymedeDist, "Europa should be closer than Ganymede")
+        #expect(ganymedeDist < callistoDist, "Ganymede should be closer than Callisto")
+    }
+    
+    @Test("Saturn moons Titan and Enceladus at correct distances")
+    func saturnMoonsDistances() async throws {
+        let ephemeris = try Ephemeris()
+        
+        let titanState = try await ephemeris.state(of: .titan, at: .j2000, relativeTo: .saturn)
+        let enceladusState = try await ephemeris.state(of: .enceladus, at: .j2000, relativeTo: .saturn)
+        
+        // Titan: ~1,221,870 km from Saturn
+        let titanDistKm = simd_length(titanState.position) / 1000.0
+        #expect(titanDistKm > 1_100_000)
+        #expect(titanDistKm < 1_300_000)
+        
+        // Enceladus: ~238,000 km from Saturn  
+        let enceladusDistKm = simd_length(enceladusState.position) / 1000.0
+        #expect(enceladusDistKm > 200_000)
+        #expect(enceladusDistKm < 280_000)
+        
+        // Enceladus should be closer than Titan
+        #expect(enceladusDistKm < titanDistKm)
+    }
+    
+    @Test("Phoebe is retrograde moon of Saturn")
+    func phoebeRetrograde() async throws {
+        let ephemeris = try Ephemeris()
+        
+        let phoebeState = try await ephemeris.state(of: .phoebe, at: .j2000, relativeTo: .saturn)
+        
+        // Phoebe: semi-major axis ~12,952,000 km, but eccentricity ~0.164
+        // Distance ranges from ~10.8M km (periapsis) to ~15.1M km (apoapsis)
+        let phoebeDistKm = simd_length(phoebeState.position) / 1000.0
+        #expect(phoebeDistKm > 10_000_000)
+        #expect(phoebeDistKm < 16_000_000)
+        
+        // Phoebe is much more distant than Titan (~1.2M km)
+        let titanState = try await ephemeris.state(of: .titan, at: .j2000, relativeTo: .saturn)
+        let titanDistKm = simd_length(titanState.position) / 1000.0
+        #expect(phoebeDistKm > titanDistKm * 5, "Phoebe should be much farther than Titan")
     }
 }
 

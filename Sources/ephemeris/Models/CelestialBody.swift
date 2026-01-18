@@ -47,12 +47,15 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
     // MARK: - Major Moons
     
     case moon        // Earth's Moon (Luna)
+    case phobos      // Mars I
+    case deimos      // Mars II
     case io          // Jupiter I
     case europa      // Jupiter II
     case ganymede    // Jupiter III
     case callisto    // Jupiter IV
     case titan       // Saturn VI
     case enceladus   // Saturn II
+    case phoebe      // Saturn IX (retrograde, irregular)
     
     // MARK: - Properties
     
@@ -71,12 +74,15 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
         case .ceres: return "Ceres"
         case .pluto: return "Pluto"
         case .moon: return "Moon"
+        case .phobos: return "Phobos"
+        case .deimos: return "Deimos"
         case .io: return "Io"
         case .europa: return "Europa"
         case .ganymede: return "Ganymede"
         case .callisto: return "Callisto"
         case .titan: return "Titan"
         case .enceladus: return "Enceladus"
+        case .phoebe: return "Phoebe"
         }
     }
     
@@ -95,12 +101,15 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
         case .ceres: return 2000001  // Ceres is asteroid 1
         case .pluto: return 999
         case .moon: return 301
+        case .phobos: return 401
+        case .deimos: return 402
         case .io: return 501
         case .europa: return 502
         case .ganymede: return 503
         case .callisto: return 504
         case .titan: return 606
         case .enceladus: return 602
+        case .phoebe: return 609
         }
     }
     
@@ -124,7 +133,7 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
     /// Whether this body is a moon.
     public var isMoon: Bool {
         switch self {
-        case .moon, .io, .europa, .ganymede, .callisto, .titan, .enceladus:
+        case .moon, .phobos, .deimos, .io, .europa, .ganymede, .callisto, .titan, .enceladus, .phoebe:
             return true
         default:
             return false
@@ -135,8 +144,9 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
     public var parent: CelestialBody? {
         switch self {
         case .moon: return .earth
+        case .phobos, .deimos: return .mars
         case .io, .europa, .ganymede, .callisto: return .jupiter
-        case .titan, .enceladus: return .saturn
+        case .titan, .enceladus, .phoebe: return .saturn
         default: return nil
         }
     }
@@ -148,6 +158,6 @@ public enum CelestialBody: String, Codable, Sendable, CaseIterable {
     
     /// All moons included in this enumeration.
     public static let moons: [CelestialBody] = [
-        .moon, .io, .europa, .ganymede, .callisto, .titan, .enceladus
+        .moon, .phobos, .deimos, .io, .europa, .ganymede, .callisto, .titan, .enceladus, .phoebe
     ]
 }

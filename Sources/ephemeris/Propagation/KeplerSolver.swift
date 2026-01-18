@@ -210,6 +210,110 @@ public enum KeplerSolver {
     
     // MARK: - Full State Vector
     
+    /// Computes a state vector from moon orbital elements.
+    ///
+    /// This method is similar to stateVector(from:gm:frame:) but handles moon elements
+    /// which use different units (km for semi-major axis) and slightly different
+    /// element definitions (longitudeOfPeriapsis instead of longitudeOfPerihelion).
+    ///
+    /// The returned state vector is relative to the moon's parent body (not heliocentric).
+    ///
+    /// - Parameters:
+    ///   - elements: Moon orbital elements.
+    ///   - gmParent: Gravitational parameter μ = GM of the parent body (m³/s²).
+    ///   - epoch: The epoch for the state vector.
+    ///   - orbitalPeriod: The moon's orbital period in days.
+    ///   - isRetrograde: Whether the moon has a retrograde orbit.
+    ///   - frame: Output reference frame. Default is ecliptic J2000.
+    /// - Returns: State vector with position (m) and velocity (m/s) relative to parent.
+    public static func stateVector(
+        from elements: BundledEphemeris.MoonOrbitalElements,
+        gmParent: Double,
+        epoch: Epoch,
+        orbitalPeriod: Double,
+        isRetrograde: Bool = false,
+        frame: ReferenceFrame = .eclipticJ2000
+    ) -> StateVector {
+        // For moons, we use the orbital period to compute mean motion
+        // Mean motion n = 2π / T (rad/s)
+        let periodSeconds = orbitalPeriod * 86400.0  // days to seconds
+        let n = 2.0 * .pi / periodSeconds
+        
+        // Calculate days since J2000
+        let daysSinceJ2000 = epoch.julianDate - Epoch.j2000.julianDate
+        
+        // Mean anomaly at epoch (starting from meanLongitude at J2000)
+        // M = M0 + n * t
+        var M = elements.meanLongitude + (n * daysSinceJ2000 * 86400.0) * 180.0 / .pi
+        
+        // Normalize M to [-180, 180]
+        M = M.truncatingRemainder(dividingBy: 360.0)
+        if M > 180.0 { M -= 360.0 }
+        if M < -180.0 { M += 360.0 }
+        
+        // Solve Kepler's equation
+        let E = solveKepler(meanAnomaly: M, eccentricity: elements.eccentricity)
+        
+        // Position in orbital plane (km -> meters)
+        let aMeters = elements.semiMajorAxis * 1000.0
+        let ERad = E * .pi / 180.0
+        let xPrime = aMeters * (cos(ERad) - elements.eccentricity)
+        let yPrime = aMeters * sqrt(1.0 - elements.eccentricity * elements.eccentricity) * sin(ERad)
+        
+        // Velocity in orbital plane
+        let dEdt = n / (1.0 - elements.eccentricity * cos(ERad))
+        var vxPrime = -aMeters * sin(ERad) * dEdt
+        var vyPrime = aMeters * sqrt(1.0 - elements.eccentricity * elements.eccentricity) * cos(ERad) * dEdt
+        
+        // For retrograde orbits, reverse the velocity direction
+        if isRetrograde {
+            vxPrime = -vxPrime
+            vyPrime = -vyPrime
+        }
+        
+        // Argument of periapsis: ω = ϖ - Ω
+        let omega = (elements.longitudeOfPeriapsis - elements.longitudeOfAscendingNode) * .pi / 180.0
+        let Omega = elements.longitudeOfAscendingNode * .pi / 180.0
+        let I = elements.inclination * .pi / 180.0
+        
+        // Rotation matrix components
+        let cosOmega = cos(Omega)
+        let sinOmega = sin(Omega)
+        let cosI = cos(I)
+        let sinI = sin(I)
+        let cosomega = cos(omega)
+        let sinomega = sin(omega)
+        
+        // First row of rotation matrix (for x)
+        let m11 = cosomega * cosOmega - sinomega * sinOmega * cosI
+        let m12 = -sinomega * cosOmega - cosomega * sinOmega * cosI
+        
+        // Second row (for y)
+        let m21 = cosomega * sinOmega + sinomega * cosOmega * cosI
+        let m22 = -sinomega * sinOmega + cosomega * cosOmega * cosI
+        
+        // Third row (for z)
+        let m31 = sinomega * sinI
+        let m32 = cosomega * sinI
+        
+        // Apply rotation to position
+        let x = m11 * xPrime + m12 * yPrime
+        let y = m21 * xPrime + m22 * yPrime
+        let z = m31 * xPrime + m32 * yPrime
+        
+        // Apply rotation to velocity
+        let vx = m11 * vxPrime + m12 * vyPrime
+        let vy = m21 * vxPrime + m22 * vyPrime
+        let vz = m31 * vxPrime + m32 * vyPrime
+        
+        return StateVector(
+            position: SIMD3(x, y, z),
+            velocity: SIMD3(vx, vy, vz),
+            epoch: epoch,
+            frame: frame
+        )
+    }
+    
     /// Computes a state vector from orbital elements.
     ///
     /// This is the main entry point for converting Keplerian orbital elements
