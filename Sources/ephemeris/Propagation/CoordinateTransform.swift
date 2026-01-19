@@ -282,6 +282,80 @@ public enum CoordinateTransform {
     ) -> SIMD3<Double> {
         sphericalToCartesian(r: distance, longitude: ra, latitude: dec)
     }
+    // MARK: - Precession (J2000 -> JNow)
+    
+    /// Converts a position vector from J2000 frame to the Mean Equator and Equinox of Date (JNow).
+    ///
+    /// This method applies a precession matrix to account for the Earth's axial precession
+    /// (the slow wobble of Earth's rotational axis) since the J2000.0 epoch.
+    ///
+    /// The algorithm uses a standard low-precision model (suitable for < 1 arcminute accuracy)
+    /// often cited in astronomical almanacs. It is sufficient for visual observation,
+    /// telescope pointing (non-professional), and planetarium applications.
+    ///
+    /// - Parameters:
+    ///   - vector: Position vector in J2000 equatorial coordinates.
+    ///   - epoch: The date for which to calculate the precession.
+    /// - Returns: Position vector in the JNow frame.
+    public static func convertJ2000ToJNow(_ vector: SIMD3<Double>, at epoch: Epoch) -> SIMD3<Double> {
+        // T is the number of Julian centuries since J2000.0
+        let T = (epoch.julianDate - Epoch.j2000.julianDate) / 36525.0
+        
+        // Precession angles (in degrees)
+        // From "Astronomical Algorithms" by Jean Meeus (Formula 22.2 / IAU 1976)
+        // zeta = 2306.2181" * T + 0.30188" * T^2 + 0.017998" * T^3
+        // z    = 2306.2181" * T + 1.09468" * T^2 + 0.018203" * T^3
+        // theta= 2004.3109" * T - 0.42665" * T^2 - 0.041833" * T^3
+        
+        // Convert arcseconds to degrees (1 degree = 3600 arcseconds)
+        let arcsecToDeg = 1.0 / 3600.0
+        
+        let zeta = (2306.2181 * T + 0.30188 * T * T + 0.017998 * T * T * T) * arcsecToDeg
+        let z = (2306.2181 * T + 1.09468 * T * T + 0.018203 * T * T * T) * arcsecToDeg
+        let theta = (2004.3109 * T - 0.42665 * T * T - 0.041833 * T * T * T) * arcsecToDeg
+        
+        // Convert to radians
+        let zetaRad = zeta * Constants.degreesToRadians
+        let zRad = z * Constants.degreesToRadians
+        let thetaRad = theta * Constants.degreesToRadians
+        
+        // Precession Matrix P = Rz(-z) * Ry(theta) * Rz(-zeta)
+        //
+        // Rz(-A) means rotation about Z by -A
+        // Ry(B)  means rotation about Y by B
+        
+        let cosZeta = cos(zetaRad)
+        let sinZeta = sin(zetaRad)
+        
+        let cosZ = cos(zRad)
+        let sinZ = sin(zRad)
+        
+        let cosTheta = cos(thetaRad)
+        let sinTheta = sin(thetaRad)
+        
+        // Elements of the rotation matrix
+        // Row 1
+        let P11 = cosZeta * cosTheta * cosZ - sinZeta * sinZ
+        let P12 = -sinZeta * cosTheta * cosZ - cosZeta * sinZ
+        let P13 = -sinTheta * cosZ
+        
+        // Row 2
+        let P21 = cosZeta * cosTheta * sinZ + sinZeta * cosZ
+        let P22 = -sinZeta * cosTheta * sinZ + cosZeta * cosZ
+        let P23 = -sinTheta * sinZ
+        
+        // Row 3
+        let P31 = cosZeta * sinTheta
+        let P32 = -sinZeta * sinTheta
+        let P33 = cosTheta
+        
+        // Apply rotation
+        let x = P11 * vector.x + P12 * vector.y + P13 * vector.z
+        let y = P21 * vector.x + P22 * vector.y + P23 * vector.z
+        let zPos = P31 * vector.x + P32 * vector.y + P33 * vector.z
+        
+        return SIMD3(x, y, zPos)
+    }
 }
 
 

@@ -220,4 +220,42 @@ struct CoordinateTransformTests {
         #expect(abs(back.y - original.y) < 1e-10)
         #expect(abs(back.z - original.z) < 1e-10)
     }
+    
+    // MARK: - Precession Tests
+    
+    @Test("Precession at J2000 is identity")
+    func precessionAtJ2000() {
+        // At J2000, T=0, so precession matrix should be identity
+        let original = SIMD3<Double>(1.0, 0.0, 0.0)
+        let converted = CoordinateTransform.convertJ2000ToJNow(original, at: .j2000)
+        
+        #expect(abs(converted.x - 1.0) < 1e-12)
+        #expect(abs(converted.y) < 1e-12)
+        #expect(abs(converted.z) < 1e-12)
+    }
+    
+    @Test("Precession moves vernal equinox drift")
+    func precessionDrift() {
+        // General precession in longitude is about 50.3 arcseconds per year
+        // In 50 years, this is ~2500 arcseconds ≈ 0.7 degrees
+        
+        // Epoch: J2050 (50 years after J2000)
+        // Julian Date = 2451545.0 + 50 * 365.25 = 2469807.5
+        let j2050 = Epoch(julianDate: 2469807.5)
+        
+        let vernalEquinoxJ2000 = SIMD3<Double>(1.0, 0.0, 0.0)
+        let converted = CoordinateTransform.convertJ2000ToJNow(vernalEquinoxJ2000, at: j2050)
+        
+        // We expect the x-axis to have moved.
+        // It shouldn't be (1,0,0) anymore.
+        #expect(abs(converted.x - 1.0) > 1e-5)
+        
+        // Roughly check the magnitude of the shift
+        // angle ≈ acos(x)
+        let angleRad = acos(converted.x)
+        let angleDeg = angleRad * 180.0 / .pi
+        
+        // Expected shift is roughly 0.7°, let's say between 0.5° and 1.0°
+        #expect(angleDeg > 0.5 && angleDeg < 1.0)
+    }
 }

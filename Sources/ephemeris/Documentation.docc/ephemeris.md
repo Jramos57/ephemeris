@@ -59,6 +59,7 @@ print("Earth-Mars distance: \(distance) AU")
 - <doc:CoordinateFrames>
 - <doc:TimeAndEpochs>
 - <doc:MoonPositions>
+- <doc:Capabilities>
 
 ### Core Types
 
