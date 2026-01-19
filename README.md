@@ -178,6 +178,12 @@ Full documentation is available at:
 - [GitHub Pages](https://jramos57.github.io/ephemeris/documentation/ephemeris/)
 - [Swift Package Index](https://swiftpackageindex.com/Jramos57/ephemeris/documentation)
 
+## Contributing
+
+This project uses a **closed contribution model** (similar to SQLite). The source code is freely available, but pull requests are not accepted. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+Bug reports and feature requests are welcome as issues.
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
